@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Link;
 use App\Repository\PhotoRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -17,46 +18,53 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
-#[Vich\Uploadable]
 #[ORM\Entity(repositoryClass: PhotoRepository::class)]
+#[Vich\Uploadable]
 #[ApiResource(
-    uriTemplate: '/guinea-pigs/{id}/photos',
-    uriVariables: [
-        'id' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class)
+    operations: [
+        new Get(),
+        new GetCollection(),
     ],
-    operations: [new GetCollection()],
 )]
-//#[ApiResource(
-//    uriTemplate: '/guinea-pigs/{id}/photos',
-//    uriVariables: [
-//        'id' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class)
-//    ],
-//    operations: [
-//        new GetCollection(),
-//        new Post(
-//            controller: CreatePhotoAction::class,
-//            openapi: new Model\Operation(
-//                requestBody: new Model\RequestBody(
-//                    content: new \ArrayObject([
-//                        'multipart/form-data' => [
-//                            'schema' => [
-//                                'type' => 'object',
-//                                'properties' => [
-//                                    'file' => [
-//                                        'type' => 'string',
-//                                        'format' => 'binary'
-//                                    ]
-//                                ]
-//                            ]
-//                        ]
-//                    ])
-//                )
-//            ),
-//            validationContext: ['groups' => ['Default', 'photo_create']],
-//            deserialize: false
-//        ),
-//    ],
-//)]
+#[ApiResource(
+    uriTemplate: '/guinea-pigs/{guineaPigId}/photos',
+    uriVariables: [
+        'guineaPigId' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class),
+    ],
+    operations: [
+        new Get(
+            uriTemplate: '/guinea-pigs/{guineaPigId}/photos/{id}',
+            uriVariables: [
+                'guineaPigId' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class),
+                'id' => new Link(fromProperty: 'id', fromClass: Photo::class),
+            ],
+        ),
+        new GetCollection(),
+        new Post(
+            controller: CreatePhotoAction::class,
+            openapi: new Model\Operation(
+                requestBody: new Model\RequestBody(
+                    content: new \ArrayObject([
+                        'multipart/form-data' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'file' => [
+                                        'type' => 'string',
+                                        'format' => 'binary'
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]),
+                ),
+            ),
+            validationContext: ['groups' => ['Default', 'photo_create']],
+            deserialize: false,
+        ),
+        new Delete(security: 'object.getGuineaPig().getOwner() == user'),
+    ],
+)]
 class Photo
 {
     #[ORM\Id]
