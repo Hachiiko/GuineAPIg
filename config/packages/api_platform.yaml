@@ -1,0 +1,25 @@
+api_platform:
+    title: GuineAPIg
+    version: 1.0.0
+    formats:
+        json: ['application/json']
+        jsonld: [ 'application/ld+json' ]
+    docs_formats:
+        json: ['application/json']
+        jsonld: [ 'application/ld+json' ]
+        html: ['text/html']
+    defaults:
+        stateless: true
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        extra_properties:
+            standard_put: true
+            rfc_7807_compliant_errors: true
+    event_listeners_backward_compatibility_layer: false
+    keep_legacy_inflector: false
+    path_segment_name_generator: api_platform.metadata.path_segment_name_generator.dash
+    swagger:
+        api_keys:
+            JWT:
+                name: Authorization
+                type: header
