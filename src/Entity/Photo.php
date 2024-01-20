@@ -36,7 +36,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             uriTemplate: '/guinea-pigs/{guineaPigId}/photos/{id}',
             uriVariables: [
                 'guineaPigId' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class),
-                'id' => new Link(fromProperty: 'id', fromClass: Photo::class),
+                'id' => new Link(fromClass: Photo::class),
             ],
         ),
         new GetCollection(),
@@ -62,7 +62,14 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
             validationContext: ['groups' => ['Default', 'photo_create']],
             deserialize: false,
         ),
-        new Delete(security: 'object.getGuineaPig().getOwner() == user'),
+        new Delete(
+            uriTemplate: '/guinea-pigs/{guineaPigId}/photos/{id}',
+            uriVariables: [
+                'guineaPigId' => new Link(fromProperty: 'photos', fromClass: GuineaPig::class),
+                'id' => new Link(fromClass: Photo::class),
+            ],
+            security: 'object.getGuineaPig().getOwner() == user',
+        ),
     ],
 )]
 class Photo
